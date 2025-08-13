@@ -12,16 +12,34 @@ export default async function (fastify) {
 
   // Route to create or edit an item
   fastify.post("/", async (request, reply) => {
-    const { itemId, sku, name, price } = request.body;
+    const { itemId, sku, name, price, tags } = request.body;
 
-    // Placeholder logic to create or update an item
-    if (itemId) {
-      fastify.log.info(`Updating item ${itemId}:`, { sku, name, price });
-    } else {
-      fastify.log.info(`Creating new item:`, { sku, name, price });
+    // parsing the tags
+    const parsedTags = tags ? tags.split(",").map((tag) => tag.trim()) : [];
+
+    // Create or update an item
+    try {
+      if (itemId) {
+        fastify.log.info(`Updating item ${itemId}:`, { sku, name, price });
+      } else {
+        await fastify.Item.create({ sku, name, price, tags: parsedTags });
+        fastify.log.info(`Created new item: ${name}`);
+      }
+      request.session.set("messages", [
+        {
+          type: "success",
+          text: itemId
+            ? "Item updated successfully"
+            : "Item created successfully"
+        }
+      ]);
+    } catch (err) {
+      request.session.set("messages", [
+        { type: "danger", text: "Failed to save item." }
+      ]);
+      fastify.log.error("Error saving item.");
+      return reply.redirect("/admin/item");
     }
-
-    return reply.redirect("/admin/item");
   });
 
   // Route to delete an item
