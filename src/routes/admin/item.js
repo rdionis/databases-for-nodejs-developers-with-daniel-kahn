@@ -14,12 +14,18 @@ export default async function (fastify) {
   fastify.post("/", async (request, reply) => {
     const { itemId, sku, name, price, tags } = request.body;
 
-    // parsing the tags
+    // Parsing the tags
     const parsedTags = tags ? tags.split(",").map((tag) => tag.trim()) : [];
 
-    // Create or update an item
+    // Route to create or update an item
     try {
       if (itemId) {
+        await fastify.Item.findByIdAndUpdate(itemId, {
+          sku,
+          name,
+          price,
+          tags
+        });
         fastify.log.info(`Updating item ${itemId}:`, { sku, name, price });
       } else {
         await fastify.Item.create({ sku, name, price, tags: parsedTags });
@@ -33,6 +39,7 @@ export default async function (fastify) {
             : "Item created successfully"
         }
       ]);
+      return reply.redirect("/admin/item");
     } catch (err) {
       request.session.set("messages", [
         { type: "danger", text: "Failed to save item." }
