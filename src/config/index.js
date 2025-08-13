@@ -1,6 +1,14 @@
 export const config = {
   server: {
+    // eslint-disable-next-line no-undef
     port: process.env.PORT || 3000
+  },
+  mongodb: {
+    uri: "mongodb://localhost:27017/simpleshop",
+    options: {
+      serverSelectionTimeoutMS: 3000,
+      socketTimeoutMS: 3000
+    }
   },
   session: {
     // Secret key to encrypt client side sessions.
