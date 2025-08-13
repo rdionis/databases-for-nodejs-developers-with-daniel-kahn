@@ -12,4 +12,8 @@ const ItemSchema = new mongoose.Schema(
   }
 );
 
+ItemSchema.index({ tags: 1 }); // sorting ascending (-1 would be descending)
+ItemSchema.index({ name: 1 });
+ItemSchema.index({ name: "text" });
+
 export const Item = mongoose.model("Item", ItemSchema);
