@@ -53,9 +53,19 @@ export default async function (fastify) {
   fastify.get("/delete/:id", async (request, reply) => {
     const { id } = request.params;
 
-    // Placeholder logic to delete an item
+    try {
+      await fastify.Item.findByIdAndDelete(id);
+      request.session.set("messages", [
+        { type: "success", text: "Successfully deleted item." }
+      ]);
+    } catch (err) {
+      request.session.set("messages", [
+        { type: "danger", text: "Failed to delete item." }
+      ]);
+      fastify.log.error("Error deleting item.");
+      return reply.redirect("/admin/item");
+    }
     fastify.log.info(`Deleting item with id: ${id}`);
-
     return reply.redirect("/admin/item");
   });
 
