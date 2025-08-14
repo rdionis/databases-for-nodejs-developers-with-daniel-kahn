@@ -1,5 +1,4 @@
 export default (sequelize, DataTypes) => {
-  console.log("This is the user model");
   const User = sequelize.define("User", {
     email: {
       type: DataTypes.STRING,
@@ -15,6 +14,5 @@ export default (sequelize, DataTypes) => {
   User.associate = (models) => {
     User.hasMany(models.Order, { foreignKey: "userId", as: "orders" });
   };
-
   return User;
 };
