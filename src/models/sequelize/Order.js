@@ -10,9 +10,10 @@ export default (sequelize, DataTypes) => {
     },
     status: {
       type: DataTypes.STRING,
-      defaultValue: "pending"
+      defaultValue: "Pending"
     }
   });
+
   Order.associate = (models) => {
     Order.belongsTo(models.User, { foreignKey: "userId", as: "user" });
     Order.hasMany(models.OrderItem, { foreignKey: "orderId", as: "items" });
