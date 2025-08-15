@@ -23,8 +23,6 @@ async function sessionPlugin(fastify, config) {
     prefix: "myshop:"
   });
 
-  console.log(redisStore);
-
   // Register fastify-session
   fastify.register(fastifySession, {
     store: redisStore,

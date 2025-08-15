@@ -89,7 +89,6 @@ export default async function (fastify) {
       req.session.set("messages", [
         { type: "success", text: "You have been logged out." }
       ]);
-      console.log("YOU ARE LOGGED OUT");
       return reply.redirect("/user/login");
     } catch (error) {
       req.session.set("messages", [
