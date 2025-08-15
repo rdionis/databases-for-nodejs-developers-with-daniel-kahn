@@ -50,8 +50,6 @@ export default async function (fastify) {
 
         const user = await fastify.models.User.findOne({ where: { email } });
 
-        //console.log("USER", user);
-
         if (!user) {
           req.session.set("messages", [
             { type: "danger", text: "Invalid email or password." }
@@ -87,7 +85,7 @@ export default async function (fastify) {
   // GET /logout – Clear the session and redirect to the login page
   fastify.get("/logout", async (req, reply) => {
     try {
-      req.session.set("user", null); // Logging out
+      fastify.clearSession(req); // Logging out
       req.session.set("messages", [
         { type: "success", text: "You have been logged out." }
       ]);
