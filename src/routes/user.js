@@ -87,10 +87,11 @@ export default async function (fastify) {
   // GET /logout – Clear the session and redirect to the login page
   fastify.get("/logout", async (req, reply) => {
     try {
-      req.session.delete(); // Clear the session
+      req.session.set("user", null); // Logging out
       req.session.set("messages", [
         { type: "success", text: "You have been logged out." }
       ]);
+      console.log("YOU ARE LOGGED OUT");
       return reply.redirect("/user/login");
     } catch (error) {
       req.session.set("messages", [
