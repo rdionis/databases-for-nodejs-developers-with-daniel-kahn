@@ -1,5 +1,5 @@
 export default async function (fastify) {
-  // GET /login - Render the login form
+  // GET /login – Render the login form
   fastify.get("/login", async (req, reply) => {
     try {
       if (req.session.get("user")) {
@@ -20,7 +20,7 @@ export default async function (fastify) {
     }
   });
 
-  // POST /login - Handle login logic with validation
+  // POST /login – Handle login logic with validation
   fastify.post(
     "/login",
     {
@@ -48,18 +48,31 @@ export default async function (fastify) {
 
         const { email, password } = req.body;
 
-        // TODO: Replace with real database authentication logic
-        if (email === "test@example.com" && password === "password123") {
-          req.session.set("user", { email }); // Save user data in session
+        const user = await fastify.models.User.findOne({ where: { email } });
+
+        //console.log("USER", user);
+
+        if (!user) {
           req.session.set("messages", [
-            { type: "success", text: "Successfully logged in." }
+            { type: "danger", text: "Invalid email or password." }
           ]);
-          return reply.redirect("/");
+          return reply.redirect("/user/login");
         }
 
+        const isPasswordValid = await user.comparePassword(password);
+
+        if (!isPasswordValid) {
+          req.session.set("messages", [
+            { type: "danger", text: "Invalid email or password. FOOOO" }
+          ]);
+          return reply.redirect("/user/login");
+        }
+
+        req.session.set("user", { id: user.id, email: user.email });
         req.session.set("messages", [
-          { type: "danger", text: "Invalid email or password." }
+          { type: "success", text: "Successfully logged in." }
         ]);
+
         return reply.redirect("/user/login");
       } catch (error) {
         req.session.set("messages", [
@@ -71,7 +84,7 @@ export default async function (fastify) {
     }
   );
 
-  // GET /logout - Clear the session and redirect to the login page
+  // GET /logout – Clear the session and redirect to the login page
   fastify.get("/logout", async (req, reply) => {
     try {
       req.session.delete(); // Clear the session
