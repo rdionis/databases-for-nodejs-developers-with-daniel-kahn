@@ -9,6 +9,13 @@ function requireLogin(req, reply) {
   return true; // Allow execution to continue
 }
 
+// creating an unique hasher identifier that we'll use in redis, which will ne namespaced
+function basketKey(req) {
+  const user = req.session.get("user");
+  if (!user) return null;
+  return `mybasket:user:${user.id}:items`; //namespace
+}
+
 export default async function (fastify) {
   // Route to display basket contents
   fastify.get("/", async (req, reply) => {
@@ -41,7 +48,10 @@ export default async function (fastify) {
       const { sku, quantity } = req.body;
       fastify.log.info(`Adding item with SKU: ${sku}, quantity: ${quantity}`);
 
-      // TODO: Add the item to the Redis basket
+      // Add the item to the Redis basket
+
+      const key = basketKey(req);
+      await fastify.redis.hincrby(key, sku, parseInt(quantity, 10));
 
       req.session.set("messages", [
         {
