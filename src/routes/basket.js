@@ -23,8 +23,15 @@ export default async function (fastify) {
       if (!requireLogin(req, reply)) return; // Stop execution if user is not logged in
 
       fastify.log.info("Fetching basket contents.");
-      // TODO: Fetch basket contents from Redis
-      const items = []; // Replace this with Redis retrieval logic
+      // Fetch basket contents from Redis
+
+      const key = basketKey(req);
+      const basket = await fastify.redis.hgetall(key); // returns all the basket items for a given key
+
+      const items = Object.entries(basket).map(([sku, quantity]) => ({
+        sku,
+        quantity: parseInt(quantity, 10)
+      }));
 
       return reply.view("basket.ejs", {
         title: "Your Basket",
@@ -77,7 +84,10 @@ export default async function (fastify) {
       const { sku } = req.body;
       fastify.log.info(`Removing item with SKU: ${sku}`);
 
-      // TODO: Remove the item from the Redis basket
+      // Remove the item from the Redis basket
+
+      const key = basketKey(req);
+      await fastify.redis.hdel(key, sku);
 
       req.session.set("messages", [
         {
@@ -126,7 +136,10 @@ export default async function (fastify) {
       if (!requireLogin(req, reply)) return;
 
       fastify.log.info("Clearing all items from the basket.");
-      // TODO: Clear all basket items from Redis
+      // Clear all basket items from Redis
+
+      const key = basketKey(req);
+      await fastify.redis.del(key);
 
       req.session.set("messages", [
         { type: "success", text: "Your basket has been cleared." }
