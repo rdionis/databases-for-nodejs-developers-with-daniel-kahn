@@ -11,6 +11,7 @@ import routesPlugin from "./plugins/routes.js";
 import defaultsPlugin from "./plugins/defaults.js";
 import sessionPlugin from "./plugins/session.js";
 import formBody from "@fastify/formbody";
+import basketPlugin from "./plugins/basket.js";
 
 // Create a Fastify instance with logging enabled
 const fastify = Fastify({ logger: true, disableRequestLogging: true });
@@ -35,6 +36,9 @@ fastify.register(redisPlugin, config.redis);
 
 // Register the session plugin AFTER Redis is available
 fastify.register(sessionPlugin, config.session);
+
+// Register the basket plugin
+fastify.register(basketPlugin);
 
 // Register the view plugin
 fastify.register(viewPlugin);

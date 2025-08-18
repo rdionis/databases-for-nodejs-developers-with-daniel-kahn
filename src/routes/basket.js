@@ -28,10 +28,17 @@ export default async function (fastify) {
       const key = basketKey(req);
       const basket = await fastify.redis.hgetall(key); // returns all the basket items for a given key
 
-      const items = Object.entries(basket).map(([sku, quantity]) => ({
-        sku,
-        quantity: parseInt(quantity, 10)
-      }));
+      const items = await Promise.all(
+        Object.entries(basket).map(async ([sku, quantity]) => {
+          const item = await fastify.Item.findOne({ sku });
+          return {
+            sku,
+            name: item ? item.name : "Unknown Item",
+            price: item ? item.price : "N/A",
+            quantity: parseInt(quantity, 10)
+          };
+        })
+      );
 
       return reply.view("basket.ejs", {
         title: "Your Basket",
