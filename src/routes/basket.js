@@ -121,8 +121,6 @@ export default async function (fastify) {
       // Retrieve basket items from Redis and process purchase
       const key = basketKey(req);
       const basket = await fastify.redis.hgetall(key); // returns all the basket items for a given key
-      console.log("key: ", key);
-      console.log("basket: ", basket);
 
       const items = await Promise.all(
         Object.entries(basket).map(async ([sku, quantity]) => {
@@ -136,13 +134,11 @@ export default async function (fastify) {
           };
         })
       );
-      console.log("items: ", items);
       // Clear the basket after successful purchase
 
       const sequelize = fastify.sequelize;
       await sequelize.transaction(async (transaction) => {
         const user = req.session.get("user");
-        console.log("user inside sequelize transaction", user);
         const order = await fastify.models.Order.create(
           {
             userId: user.id,
@@ -151,10 +147,8 @@ export default async function (fastify) {
           },
           { transaction }
         );
-        console.log("order inside sequelize transaction", order);
 
         for (const item of items) {
-          console.log("OrderItem inside sequelize transaction", item);
           await fastify.models.OrderItem.create(
             {
               orderId: order.id,
@@ -165,10 +159,8 @@ export default async function (fastify) {
             },
             { transaction }
           );
-          console.log("finishing transaction"); // does not log
         }
         await fastify.redis.del(key);
-        console.log("clearing out basket after purchase"); // does not log
       });
 
       req.session.set("messages", [
@@ -177,10 +169,8 @@ export default async function (fastify) {
           text: "Thank you for your purchase! Your basket has been processed."
         }
       ]);
-      console.error("was it a success?"); // does not log
       return reply.redirect("/");
     } catch (error) {
-      console.log("falling inside the catch block"); // logs
       fastify.log.error("Error processing basket purchase:", error);
       req.session.set("messages", [
         { type: "danger", text: "Failed to process your purchase." }
