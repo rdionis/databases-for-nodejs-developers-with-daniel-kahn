@@ -2,7 +2,6 @@ export default async function (fastify) {
   // Route to fetch and display all orders
   fastify.get("/", async (request, reply) => {
     try {
-      console.log("beginning of try block");
       // Fetch all orders and their items from the database
       fastify.log.info("Fetching all orders for admin view.");
 
@@ -33,9 +32,6 @@ export default async function (fastify) {
         }))
       }));
 
-      //console.log(order.OrderItems)
-      console.log("ORDER DATA", orderData);
-
       return reply.view("admin/orders.ejs", {
         title: "Manage Orders",
         currentPath: "/admin/orders",
@@ -52,7 +48,6 @@ export default async function (fastify) {
       return reply.redirect("/admin/orders");
     }
   });
-  console.log("after first get request");
 
   // Route to set an order as "shipped"
   fastify.get("/setshipped/:orderId", async (request, reply) => {
